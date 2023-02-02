@@ -1,0 +1,33 @@
+#!/bin/bash
+
+sleep 10 
+
+PFAD=/storage/UBUNTU/vdr
+
+cd /storage/UBUNTU/vdr
+NEXT=vdr;
+
+while true;
+do
+   case "$NEXT" in
+  "xbmc")
+	systemctl unmask kodi
+	systemctl start kodi
+	systemctl mask kodi
+	sleep 3
+	while ps axg | grep -vw grep | grep -w kodi.bin > /dev/null  ||  ps axg | grep -vw grep | grep -w emulationstation > /dev/null ; do sleep 2; done
+
+       systemctl stop kodi
+       $PFAD/svdrpsend.sh REMO on 
+       $PFAD/svdrpsend.sh PLUG softhdodroid ATTA -a hw:CARD=AMLAUGESOUND,DEV=0
+       NEXT=vdr;
+       ;;
+   "vdr")
+       ./looper
+       $PFAD/svdrpsend.sh PLUG softhdodroid DETA
+       $PFAD/svdrpsend.sh REMO off
+       NEXT=xbmc;
+       ;;
+    esac
+done
+

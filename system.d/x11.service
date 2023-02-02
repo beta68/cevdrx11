@@ -1,0 +1,14 @@
+[Unit]
+Description=Starts and stops kodi (required for x11 usage)
+
+[Service]
+Type=forking
+Requires=network-online.service
+After=network-online.service
+ExecStart=/storage/UBUNTU/vdr/x11.sh
+RemainAfterExit=true
+Type=oneshot
+
+[Install]
+WantedBy=kodi.target
+

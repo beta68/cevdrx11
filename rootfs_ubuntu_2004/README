@@ -1,0 +1,17 @@
+cat rootfs_ubuntu_2004.?? > rootfs_ubuntu_2004.tar.bz2
+
+Execute in CoreElec
+===================
+
+cd /storage
+mkdir UBUNTU
+cp rootfs_ubuntu_2004.tar.bz2 UBUNTU
+cd UBUNTU
+tar xvfj rootfs_ubuntu_2004.tar.bz2
+rm roots_ubuntu_2004.tar.bz2
+mkdir ce
+mkdir storage
+mkdir video
+mkdir home
+mkdir home/rudi
+mkdir vdr

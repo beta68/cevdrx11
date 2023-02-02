@@ -1,0 +1,5 @@
+Execute in chroot
+=================
+
+cd /home/rudi
+git clone https://github.com/MegaV0lt/MP_Logos

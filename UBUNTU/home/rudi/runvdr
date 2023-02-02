@@ -1,0 +1,120 @@
+#!/bin/sh
+
+#export LC_MESSAGES=de_DE.UTF-8
+#export LC_LANG=de_DE.UTF-8
+#export LANG=de_DE.UTF-8
+#export LC_ALL=de_DE.UTF8
+#export VDR_LANG=de_DE@euro
+#export VDR_CHARSET_OVERRIDE=ISO-8859-9
+
+
+# for 4K TV. for HD: switch from 1080p60hz to 1080p50hz
+# this is required for OSD under all circumstances
+#echo 420,10bit > /sys/class/amhdmitx/amhdmitx0/attr
+#echo 1080p50hz > /sys/class/display/mode
+#echo 2160p50 > /sys/class/display/mode
+echo 1080p50hz > /sys/class/display/mode
+sleep 1
+#echo 2160p50 > /sys/class/display/mode
+echo 2160p50hz420 > /sys/class/display/mode
+
+#insert wintv usb driver
+#insmod /home/rudi/wintv-usb2ci.ko
+#modprobe wintv-usb2ci
+
+# keeps ssh alive after vdrkill
+umount /dev/pts/
+mount devpts /dev/pts -t devpts
+
+#start atd
+atd
+
+# start vdradmin
+mkdir -p /var/run/vdradmin
+sudo LANG=de_DE.utf8 /usr/bin/vdradmind
+
+# mount SD card in Radxa to /video directory
+mount /dev/mmcblk1p1 /video
+
+# change to virtual terminal to control VDR from there
+# this is required for FLIRC
+/bin/chvt 7
+
+VDRPRG="DISPLAY=:0.0 /usr/local/bin/vdr"
+
+# FLIRC requires a terminal to control VDR from
+# This has been set to 7 above
+VDROPTIONS="-t /dev/tty7 -l 0 --lirc -w 60  -v /video -c /var/lib/vdr -s /usr/local/bin/vdrshutdown.sh"
+# For other options see manpage vdr.1
+
+VDRPLUGINS="  \
+-P'softhdodroid -a hw:CARD=AMLAUGESOUND,DEV=0' \
+-P'skindesigner -l /var/lib/vdr/plugins/skindesigner/logos' \
+-Pstreamdev-server \
+-P'externalplayer' \
+-Pweatherforecast \
+-Ptvguideng \
+-P'tvscraper -d /video/tvscraper' \
+-Posdteletext \
+-Pfemon \
+-Pfavorites \
+-Pvnsiserver \
+-Pfritzbox \
+-Psysteminfo \
+-Ptargavfd \
+-Prestfulapi \
+-Plive \
+-Premoteosd \
+-P'cdplayer -d /dev/dr0' \
+-P'dvd -C/dev/sr0' \
+-Pmusic \
+-P'mp3 -B /var/lib/cddb -S mp3' \
+-Pspan \
+-P'osd2web -s svg -l /var/lib/vdr/plugins/skindesigner/logos' \
+-Pradio \
+-P'markad -b /usr/local/bin' \
+-Pepgsearch \
+"
+
+#-P'remote -i /dev/input/by-path/platform-ff808040.meson-remote-event-kbd' \
+
+#only needed, if client is needed (without USB device)
+#-Pstreamdev-client \
+
+VDRCMD="$VDRPRG $VDROPTIONS $VDRPLUGINS $*"
+
+KILL="/usr/bin/killall -q -TERM"
+
+# Detect whether the DVB driver is already loaded
+# and return 0 if it *is* loaded, 1 if not:
+DriverLoaded()
+{
+  return 1
+}
+
+# Load all DVB driver modules needed for your hardware:
+LoadDriver()
+{
+  return 0
+}
+
+# Unload all DVB driver modules loaded in LoadDriver():
+UnloadDriver()
+{
+  return 0
+}
+
+# Load driver if it hasn't been loaded already:
+if ! DriverLoaded; then
+   LoadDriver
+   fi
+
+while (true) do
+      eval "$VDRCMD"
+      if test $? -eq 0 -o $? -eq 2; then exit; fi      
+      echo "`date` reloading DVB driver"
+      $KILL $VDRPRG
+      UnloadDriver
+      LoadDriver
+      echo "`date` restarting VDR"
+      done

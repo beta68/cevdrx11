@@ -1,0 +1,12 @@
+cat CE_19.3_ambi_ok.?? > CoreElec_19.3_ambilight_ok.tar.bz2
+cat CE_19.5.?? > CoreElec_19.5_radxa.img.gz
+
+CoreELEC_19.3_ambilight_ok.tar.bz2 contains the
+latest ambilight patches back-transferred to CE 19.3. This is the last version
+which can do HDR to SDR (my TV does not support HDR). Use it as follows:
+
+bzip2 -d CoreElec_19.3_ambilight_ok.tar.bz2
+cp CoreElec_19.3_ambilight_ok.tar /storage/.update
+
+IMPORTANT HINT: This does not work for Radxa Zero 2 as this version has been
+supported starting with CE 19.5. However, it works perfectly for Radxa Zero and Odroid N2(+).

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+OUTPUTFLDR="/tmp/skindesigner/"
+mkdir -p ${OUTPUTFLDR}
+
+# if the script is executed from system_information script set the locale back for "°C"
+LANG=de_DE.UTF-8
+
+# there can be 4 files, cpu, gpu, pccase, motherboard
+
+rm -f ${OUTPUTFLDR}/cpu ${OUTPUTFLDR}/pccase ${OUTPUTFLDR}/gpu ${OUTPUTFLDR}/motherboard
+
+# intel core-i cpu temp
+#sensors -A coretemp-isa-0000 | grep "Core 0" | awk '{print $3}' | tr -d "+" > ${OUTPUTFLDR}/cpu
+cat /sys/devices/virtual/thermal/thermal_zone0/temp | awk '{print $1 / 1000. " °C"}' > ${OUTPUTFLDR}/cpu
+cat /sys/devices/virtual/thermal/thermal_zone1/temp | awk '{print $1 / 1000. " °C"}' > ${OUTPUTFLDR}/gpu
+
+# pc case temp
+#sensors -A acpitz-virtual-0 | grep "temp1" | awk '{print $2}' | tr -d "+" > ${OUTPUTFLDR}/pccase
+
+# motherboard temp
+#sensors -A pch_skylake-virtual-0 | grep "temp1" | awk '{print $2}' | tr -d "+" > ${OUTPUTFLDR}/motherboard
+
+# nvidia gpu temp
+# nvidia-settings must be run as the user of the x server
+# GPU=`nvidia-settings -c :0 -t -query GPUCoreTemp | head -n 1`
+#GPU=`nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader`
+#echo "${GPU}°C" > ${OUTPUTFLDR}/gpu
+

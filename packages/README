@@ -1,0 +1,9 @@
+Execute in chroot
+=================
+
+xargs -a "packages.list" apt install
+
+
+To get list of installed packages
+=================================
+dpkg --get-selections | awk '!/deinstall|purge|hold/ {print $1}' > packages.list

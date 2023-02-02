@@ -1,0 +1,14 @@
+[Unit]
+Description=Start VDR
+
+[Service]
+Type=forking
+Requires=network-online.service
+After=network-online.service
+ExecStart=/storage/UBUNTU/vdr/vdr.sh
+Restart=always
+RestartSec=15
+
+[Install]
+WantedBy=kodi.target
+

@@ -1,0 +1,4 @@
+cp bashrc /storage/.bashrc
+
+If UBUNTU/vdr.sh includes exit 0 (no vdr start), call ./ubuntu.sh to
+mount all chroot directories (for testing purpose)

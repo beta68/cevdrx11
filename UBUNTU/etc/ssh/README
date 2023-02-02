@@ -1,0 +1,6 @@
+You can call 
+
+mkdir /run/sshd
+/usr/sbin/sshd
+
+to start chroot sshd (port 222), which allows X-forwarding

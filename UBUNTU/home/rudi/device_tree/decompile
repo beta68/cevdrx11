@@ -1,0 +1,1 @@
+dtc -I dtb -O dts img.dtb -o img.dts

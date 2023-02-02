@@ -1,0 +1,4 @@
+cat CE_19.5.?? > CoreElec_19.5_radxa2.img.gz
+
+These directory includes the official CE image for Radxa Zero 2
+and the file to erase the on-board eMMC of the Zero 2.

@@ -1,0 +1,4 @@
+Execute in chroot
+=================
+
+Copy the correct libMali.so_* as libMali.so to /usr/lib/aarch64-linux-gnu/

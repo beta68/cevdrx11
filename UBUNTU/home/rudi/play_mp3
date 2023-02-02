@@ -1,0 +1,1 @@
+mpg123 -a hw:CARD=AMLAUGESOUND,DEV=0 song.mp3

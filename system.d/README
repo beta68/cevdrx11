@@ -1,0 +1,12 @@
+cp *.service /storage/.config/system.d
+
+In CoreElec (no chroot!):
+=========================
+
+cd /storage/.config/system.d
+systemctl enable ambitoggle.service
+systemctl enable reboot.service
+systemctl enable shutdown.service
+systemctl enable softoggle.service
+systemctl enable vdr.service
+systemctl enable x11.service

@@ -1,0 +1,14 @@
+[Unit]
+Description=Toggle betwen Kodi and VDR
+
+[Service]
+#Type=oneshot
+Requires=network-online.service
+After=network-online.service
+ExecStart=/storage/UBUNTU/vdr/softoggle 
+#Restart=never
+#RestartSec=15
+
+[Install]
+WantedBy=kodi.target
+
