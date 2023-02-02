@@ -2,3 +2,10 @@ cp bashrc /storage/.bashrc
 
 If UBUNTU/vdr.sh includes exit 0 (no vdr start), call ./ubuntu.sh to
 mount all chroot directories (for testing purpose)
+
+cat /sys/class/amhdmitx/amhdmitx0/disp_cap > /storage/.kodi/userdata/disp_cap
+
+As an example:
+cp disp_cap /storage/.kodi/userdata
+
+cp advancedsettings.xml /storage/.kodi/userdata
