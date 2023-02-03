@@ -2,3 +2,5 @@ Execute in chroot
 =================
 
 Copy the correct libMali.so_* as libMali.so to /usr/lib/aarch64-linux-gnu/
+For Odroid N2(+) and Radxa Zero 2 no copy is required. The installed library is already the correct one (gondul).
+Radxa Zero requires dvalin.
