@@ -4,3 +4,4 @@ mkdir /run/sshd
 /usr/sbin/sshd
 
 to start chroot sshd (port 222), which allows X-forwarding
+call ssh -Y root@ip_address -p222

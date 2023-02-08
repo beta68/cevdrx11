@@ -3,8 +3,11 @@
 # mount devpts for ssh
 mount devpts /dev/pts -t devpts
 
+# BOOT = X11
 #killall splash-image
 #systemctl stop service.hyperion.ng.service 
+# alles mounten (siehe unten)
+# und dann startx.sh starten
 #exit
 
 do_mount() {
@@ -32,6 +35,13 @@ systemctl unmask kodi
 systemctl start kodi
 systemctl mask kodi
 sleep 3 
+
+# wenn BOOT = KODI
+# endlos schleife hier, die erst verlassen wird,
+# wenn KODI beendet wird
+
+# wenn BOOT = VDR
+# 1s schnipsel abspielen
 # need to send 1 second of video. otherwise amazon VOD will show artefacts
 kodi-send --action="PlayMedia(/storage/UBUNTU/vdr/do_not_delete.ts)"
 sleep 1
@@ -39,6 +49,8 @@ kodi-send --action=Stop
 systemctl stop kodi
 #/usr/lib/coreelec/smp-affinity.sh
 
+# BOOT = KODI oder BOOT = VDR
+# hier weiter
 [ ! -d "/storage/UBUNTU/dev/usb" ] && do_mount
 
 export PATH='/root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'

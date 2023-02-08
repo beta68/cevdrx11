@@ -7,20 +7,31 @@
 #export VDR_LANG=de_DE@euro
 #export VDR_CHARSET_OVERRIDE=ISO-8859-9
 
+# assume 4K TV. If not, Full HD
+RESOLUTION="2160p50hz"
+if [ "$(cat /sys/class/display/mode | grep 2160p50hz)" = $RESOLUTION ];
+then
+        RES_FROM="1080p50hz"
+        RESOLUTION="2160p50hz420"
+else
+        RES_FROM="1080p60hz"
+        RESOLUTION="1080p50hz"
+fi
 
-# for 4K TV. for HD: switch from 1080p60hz to 1080p50hz
-# this is required for OSD under all circumstances
 #echo 420,10bit > /sys/class/amhdmitx/amhdmitx0/attr
-#echo 1080p50hz > /sys/class/display/mode
+#echo 1080p50 > /sys/class/display/mode
 #echo 2160p50 > /sys/class/display/mode
-echo 1080p50hz > /sys/class/display/mode
+
+# use autoselect 4k/1080p
+echo $RES_FROM > /sys/class/display/mode
 sleep 1
 #echo 2160p50 > /sys/class/display/mode
-echo 2160p50hz420 > /sys/class/display/mode
+echo $RESOLUTION > /sys/class/display/mode
 
-#insert wintv usb driver
-#insmod /home/rudi/wintv-usb2ci.ko
-#modprobe wintv-usb2ci
+# not needed
+#echo 0 > /sys/class/video/blackout_policy
+#echo 3 > /sys/module/amvdec_h265/parameters/double_write_mode
+#echo 3 > /sys/module/amvdec_vp9/parameters/double_write_mode
 
 # keeps ssh alive after vdrkill
 umount /dev/pts/
@@ -29,26 +40,53 @@ mount devpts /dev/pts -t devpts
 #start atd
 atd
 
-# start vdradmin
+#/usr/local/bin/hyperion_start
 mkdir -p /var/run/vdradmin
 sudo LANG=de_DE.utf8 /usr/bin/vdradmind
 
-# mount SD card in Radxa to /video directory
-mount /dev/mmcblk1p1 /video
+#mount /dev/sdb1 /video
+#mount /dev/mmcblk1p1 /video
 
 # change to virtual terminal to control VDR from there
-# this is required for FLIRC
-/bin/chvt 7
+# this is required for FLIRC only
+# check if FLIRC is avaiable
+if [ "$(lsusb | grep Clay | awk '{print $(NF-1)}')" = 'Clay' ];
+then
+	# only change terminal, if FLIRC is connected
+        TERMINAL="-t /dev/tty7"
+        /bin/chvt 7
+else
+	TERMINAL=""
+fi
+
 
 VDRPRG="DISPLAY=:0.0 /usr/local/bin/vdr"
 
+#VDROPTIONS="-D 0 -w 60 -l 0 -v /video -s /usr/local/bin/vdrshutdown.sh"
+#VDROPTIONS="-l 0 -w 60 --lirc=/var/run/lirc/lircd -v /video -s /usr/local/bin/vdrshutdown.sh"
+
 # FLIRC requires a terminal to control VDR from
 # This has been set to 7 above
-VDROPTIONS="-t /dev/tty7 -l 0 --lirc -w 60  -v /video -c /var/lib/vdr -s /usr/local/bin/vdrshutdown.sh"
+VDROPTIONS="$TERMINAL -l 0 --lirc -w 60  -v /video -c /var/lib/vdr -s /usr/local/bin/vdrshutdown.sh"
+#VDROPTIONS="-l 0 --lirc -w 60  -v /video -c /var/lib/vdr -s /usr/local/bin/vdrshutdown.sh"
+#VDROPTIONS="-l 0 -w 60  -v /video -c /var/lib/vdr -s /usr/local/bin/vdrshutdown.sh"
 # For other options see manpage vdr.1
 
-VDRPLUGINS="  \
--P'softhdodroid -a hw:CARD=AMLAUGESOUND,DEV=0' \
+# Start in detach-mode. svdrpsend PLUG softhddrm ATTA will attach
+# This will be done by a watchdog that kills itself once TV has been switched on
+
+# start softhdodroid in detach mode, if kodi is running (e.g. vdr crashes during KODI)
+if pgrep kodi.bin >/dev/null 2>&1
+then
+	OUTPUT="-P'softhdodroid -a hw:CARD=AMLAUGESOUND,DEV=0 -D'"
+else
+	OUTPUT="-P'softhdodroid -a hw:CARD=AMLAUGESOUND,DEV=0'"
+fi
+
+VDRPLUGINS1="  \
+"
+# OUTPUT PLUGIN here
+VDRPLUGINS2=" \
 -P'skindesigner -l /var/lib/vdr/plugins/skindesigner/logos' \
 -Pstreamdev-server \
 -P'externalplayer' \
@@ -81,7 +119,8 @@ VDRPLUGINS="  \
 #only needed, if client is needed (without USB device)
 #-Pstreamdev-client \
 
-VDRCMD="$VDRPRG $VDROPTIONS $VDRPLUGINS $*"
+#VDRCMD="nohup sh -c '$VDRPRG $VDROPTIONS $VDRPLUGINS $*' > /dev/null 2> /dev/null < /dev/null"
+VDRCMD="$VDRPRG $VDROPTIONS $VDRPLUGINS1 $OUTPUT $VDRPLUGINS2 $*"
 
 KILL="/usr/bin/killall -q -TERM"
 
@@ -111,9 +150,11 @@ if ! DriverLoaded; then
 
 while (true) do
       eval "$VDRCMD"
+#      if test $? -eq 0 -o $? -eq 2; then /usr/local/bin/hyperion_stop; pkill runvdr; exit; fi
       if test $? -eq 0 -o $? -eq 2; then exit; fi      
       echo "`date` reloading DVB driver"
       $KILL $VDRPRG
+#      sleep 5
       UnloadDriver
       LoadDriver
       echo "`date` restarting VDR"

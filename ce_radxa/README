@@ -1,5 +1,5 @@
 cat CE_19.3_ambi_ok.?? > CoreElec_19.3_ambilight_ok.tar.bz2
-cat CE_19.5.?? > CoreElec_19.5_radxa.img.gz
+cat CE_19.3.?? > CoreElec_19.3_radxa.img.gz
 
 CoreELEC_19.3_ambilight_ok.tar.bz2 contains the
 latest ambilight patches back-transferred to CE 19.3. This is the last version
