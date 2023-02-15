@@ -1,3 +1,8 @@
 <advancedsettings version="1.0">
 	<showexitbutton>true</showexitbutton>
+	<cache>
+    		<buffermode>1</buffermode>
+    		<memorysize>339460608</memorysize>
+    		<readfactor>20</readfactor>
+  	</cache>
 </advancedsettings>
